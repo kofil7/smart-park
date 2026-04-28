@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – SmartPark</title>
+  <meta name="description" content="Browse parking locations, view real-time slot availability, book and manage your reservations." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🅿️</div>
+      <span class="sidebar-logo-title">SmartPark</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-tab active" data-tab="find" id="tab-btn-find">
+        <span class="nav-tab-icon">🔍</span> Find Parking
+      </button>
+      <button class="nav-tab" data-tab="bookings" id="tab-btn-bookings">
+        <span class="nav-tab-icon">📋</span> My Bookings
+      </button>
+      <button class="nav-tab" data-tab="profile" id="tab-btn-profile">
+        <span class="nav-tab-icon">👤</span> My Profile
+      </button>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">JD</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Loading…</div>
+        <div class="user-role">Driver</div>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()" title="Sign Out">⏻</button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-greeting" id="greeting">Good morning!</div>
+      <h1 class="page-title">Driver Dashboard</h1>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-chip">
+        <div class="stat-chip-icon">🟢</div>
+        <div>
+          <div class="stat-chip-val" id="stat-available">—</div>
+          <div class="stat-chip-label">Available Slots</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-icon">🏢</div>
+        <div>
+          <div class="stat-chip-val" id="stat-lots">—</div>
+          <div class="stat-chip-label">Parking Areas</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-icon">📋</div>
+        <div>
+          <div class="stat-chip-val" id="stat-bookings">—</div>
+          <div class="stat-chip-label">Active Bookings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FIND PARKING TAB ── -->
+    <section class="tab-section active" id="tab-find">
+      <div class="search-bar-wrap">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search by name or location…" />
+        </div>
+      </div>
+      <div class="filter-chips">
+        <button class="filter-btn active" data-filter="all" id="filter-all">All Areas</button>
+        <button class="filter-btn" data-filter="available" id="filter-available">✅ Available</button>
+        <button class="filter-btn" data-filter="ev" id="filter-ev">⚡ EV Charging</button>
+        <button class="filter-btn" data-filter="covered" id="filter-covered">🏗️ Covered</button>
+      </div>
+      <div id="lots-grid"></div>
+    </section>
+
+    <!-- ── MY BOOKINGS TAB ── -->
+    <section class="tab-section" id="tab-bookings">
+      <div class="page-header">
+        <h2 style="font-size:1.4rem;">My Reservations</h2>
+        <p style="font-size:0.85rem;margin-top:4px;">Manage your active and past bookings</p>
+      </div>
+      <div id="bookings-list"></div>
+    </section>
+
+    <!-- ── PROFILE TAB ── -->
+    <section class="tab-section" id="tab-profile">
+      <div class="page-header">
+        <h2 style="font-size:1.4rem;">My Profile</h2>
+      </div>
+      <div class="glass-card" style="padding:28px;max-width:540px;" id="profile-card">
+        <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px;">
+          <div class="user-avatar" id="profile-avatar" style="width:64px;height:64px;font-size:1.4rem;border-radius:18px;"></div>
+          <div>
+            <h3 id="profile-name" style="font-size:1.3rem;"></h3>
+            <p id="profile-role" style="font-size:0.82rem;color:var(--accent-blue-light);margin-top:2px;"></p>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="form-group">
+            <div class="form-label">Email</div>
+            <div class="form-input" style="cursor:default;opacity:0.7;" id="profile-email"></div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Phone</div>
+            <div class="form-input" style="cursor:default;opacity:0.7;" id="profile-phone"></div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Member Since</div>
+            <div class="form-input" style="cursor:default;opacity:0.7;" id="profile-joined"></div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle);display:flex;gap:10px;">
+          <button class="btn btn-danger btn-sm" onclick="handleLogout()">⏻ Sign Out</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     LOT MODAL — Slot Grid Viewer
+     ============================================================ -->
+<div class="modal-overlay" id="lot-modal">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-lot-name" style="font-size:1.3rem;margin-bottom:4px;"></h2>
+        <p style="font-size:0.82rem;" id="modal-lot-address"></p>
+        <div style="display:flex;gap:14px;margin-top:8px;font-size:0.85rem;flex-wrap:wrap;">
+          <span id="modal-lot-rating"></span>
+          <span style="color:var(--accent-emerald);font-weight:600;" id="modal-lot-price"></span>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeLotModal()">✕</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="slot-legend">
+      <div class="legend-item"><div class="legend-dot available"></div> Available</div>
+      <div class="legend-item"><div class="legend-dot occupied"></div> Occupied</div>
+      <div class="legend-item"><div class="legend-dot selected"></div> Selected</div>
+      <div class="legend-item">♿ Disabled &nbsp;⚡ EV &nbsp;🚗 Standard</div>
+    </div>
+
+    <div id="slot-count-info"></div>
+    <div id="slot-grid"></div>
+
+    <!-- Booking Panel (slides in when slot selected) -->
+    <div id="booking-panel">
+      <h4 style="margin-bottom:12px;">
+        Booking: <span style="color:var(--accent-blue-light);" id="book-slot-num"></span>
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:400;"> @ </span>
+        <span style="font-size:0.88rem;" id="book-lot-name"></span>
+      </h4>
+      <div class="booking-panel-row">
+        <div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Duration (hours)</div>
+          <div class="duration-control">
+            <button class="dur-btn" onclick="updateDuration(-1)" id="dur-minus">−</button>
+            <span id="duration-val">1</span>
+            <button class="dur-btn" onclick="updateDuration(1)" id="dur-plus">+</button>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">Total Amount</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent-emerald);">
+            ৳<span id="book-total">50</span>
+          </div>
+          <div style="font-size:0.74rem;color:var(--text-muted);">
+            ৳<span id="book-price-per-hr"></span>/hr × <span id="book-duration-display">1</span> hr
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeBookingPanel()">Cancel</button>
+        <button class="btn btn-success" onclick="confirmBooking()" id="confirm-book-btn" style="flex:1;">
+          ✅ Confirm Booking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BOOKING CONFIRMATION MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box" style="max-width:420px;text-align:center;">
+    <div class="confirm-success-icon">🎉</div>
+    <div class="confirm-title">Booking Confirmed!</div>
+    <p class="confirm-sub">Your parking slot has been reserved successfully.</p>
+
+    <div class="confirm-details">
+      <div class="confirm-row">
+        <span>Booking ID</span>
+        <strong style="font-family:monospace;" id="confirm-booking-id"></strong>
+      </div>
+      <div class="confirm-row">
+        <span>Slot</span>
+        <strong id="confirm-slot"></strong>
+      </div>
+      <div class="confirm-row">
+        <span>Duration</span>
+        <strong id="confirm-duration"></strong>
+      </div>
+      <div class="confirm-row">
+        <span>Total Paid</span>
+        <strong style="color:var(--accent-emerald);" id="confirm-amount"></strong>
+      </div>
+      <div class="confirm-row">
+        <span>Expires At</span>
+        <strong id="confirm-expires"></strong>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-ghost btn-sm" onclick="closeConfirmModal()">Close</button>
+      <button class="btn btn-nav btn-sm" onclick="closeConfirmModal(); document.querySelector('[data-tab=bookings]').click()">
+        View My Bookings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="dashboard.js"></script>
+<script>
+  function handleLogout() {
+    logout();
+    showToast('Signed out successfully.', 'info');
+    setTimeout(() => window.location.href = 'index.html', 600);
+  }
+
+  // Populate profile tab
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = getCurrentUser();
+    if (!user) return;
+    document.getElementById('profile-avatar').textContent = user.avatar;
+    document.getElementById('profile-name').textContent = user.name;
+    document.getElementById('profile-role').textContent = user.role === 'admin' ? '🛠️ Admin' : '🚗 Driver';
+    document.getElementById('profile-email').textContent = user.email;
+    document.getElementById('profile-phone').textContent = user.phone || 'Not set';
+    document.getElementById('profile-joined').textContent = new Date(user.joinDate).toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+  });
+</script>
+</body>
+</html>

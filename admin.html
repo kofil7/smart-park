@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – SmartPark</title>
+  <meta name="description" content="SmartPark administrator panel for managing parking lots, slots, bookings and users." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Admin-specific overrides */
+    .sidebar { background: linear-gradient(180deg, #09111f 0%, #0d1a2e 100%); }
+    .admin-nav-btn.active { background: rgba(139,92,246,0.12); color: #c4b5fd; border-left: 3px solid var(--accent-purple); }
+    .admin-header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+    }
+    .admin-page-tag {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
+      color: #c4b5fd; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- ── Admin Sidebar ── -->
+  <aside class="sidebar admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🅿️</div>
+      <div>
+        <div class="sidebar-logo-title">SmartPark</div>
+        <div style="font-size:0.68rem;color:#c4b5fd;font-weight:600;letter-spacing:1px;">ADMIN PANEL</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="admin-nav-btn active" data-tab="overview" id="admin-nav-overview">
+        <span class="nav-tab-icon">📊</span> Overview
+      </button>
+      <button class="admin-nav-btn" data-tab="lots" id="admin-nav-lots">
+        <span class="nav-tab-icon">🏢</span> Parking Lots
+      </button>
+      <button class="admin-nav-btn" data-tab="bookings" id="admin-nav-bookings">
+        <span class="nav-tab-icon">📋</span> All Bookings
+      </button>
+      <button class="admin-nav-btn" data-tab="users" id="admin-nav-users">
+        <span class="nav-tab-icon">👥</span> Users
+      </button>
+    </nav>
+
+    <div class="sidebar-user" style="border-color:rgba(139,92,246,0.2);">
+      <div class="user-avatar" id="admin-avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">AM</div>
+      <div class="user-info">
+        <div class="user-name" id="admin-name">Administrator</div>
+        <div class="user-role" style="color:#c4b5fd;">Admin</div>
+      </div>
+      <button class="logout-btn" onclick="handleAdminLogout()" title="Sign Out">⏻</button>
+    </div>
+  </aside>
+
+  <!-- ── Admin Main ── -->
+  <main class="main-content">
+
+    <!-- ══════════════════════════════════════
+         OVERVIEW TAB
+         ══════════════════════════════════════ -->
+    <section class="admin-tab-section active" id="admin-tab-overview">
+      <div class="admin-header-bar">
+        <div>
+          <div class="admin-page-tag">🛠️ Administrator</div>
+          <h1 class="page-title">System Overview</h1>
+        </div>
+        <div style="font-size:0.84rem;color:var(--text-muted);">
+          Last updated: <span id="last-updated"></span>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">🏢</div>
+          <div class="admin-stat-val" id="admin-stat-lots">—</div>
+          <div class="admin-stat-label">Parking Areas</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">🅿️</div>
+          <div class="admin-stat-val" id="admin-stat-slots">—</div>
+          <div class="admin-stat-label">Total Slots</div>
+        </div>
+        <div class="admin-stat-card" style="border-color:rgba(16,185,129,0.2);">
+          <div class="admin-stat-icon">🟢</div>
+          <div class="admin-stat-val available-col" id="admin-stat-available">—</div>
+          <div class="admin-stat-label">Available Now</div>
+        </div>
+        <div class="admin-stat-card" style="border-color:rgba(139,92,246,0.2);">
+          <div class="admin-stat-icon">📋</div>
+          <div class="admin-stat-val" style="color:#c4b5fd;" id="admin-stat-bookings">—</div>
+          <div class="admin-stat-label">Active Bookings</div>
+        </div>
+        <div class="admin-stat-card" style="border-color:rgba(245,158,11,0.2);">
+          <div class="admin-stat-icon">💰</div>
+          <div class="admin-stat-val" style="color:var(--accent-amber);">৳<span id="admin-stat-revenue">—</span></div>
+          <div class="admin-stat-label">Total Revenue</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">👥</div>
+          <div class="admin-stat-val" id="admin-stat-users">—</div>
+          <div class="admin-stat-label">Registered Users</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div style="margin-bottom:28px;">
+        <h3 style="font-size:1rem;margin-bottom:14px;color:var(--text-secondary);">Quick Actions</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="switchAdminTab('lots');openAddLotModal()">
+            ➕ Add Parking Lot
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="switchAdminTab('bookings')">
+            📋 View All Bookings
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="switchAdminTab('users')">
+            👥 Manage Users
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Bookings Preview -->
+      <div>
+        <h3 style="font-size:1rem;margin-bottom:14px;color:var(--text-secondary);">Recent Bookings</h3>
+        <div class="table-wrap">
+          <table class="data-table" id="recent-bookings-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>User</th>
+                <th>Location</th>
+                <th>Slot</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-bookings-tbody">
+              <tr><td colspan="6" class="text-center text-muted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         LOTS TAB
+         ══════════════════════════════════════ -->
+    <section class="admin-tab-section" id="admin-tab-lots">
+      <div class="section-actions">
+        <div class="section-title-wrap">
+          <h2>Parking Lots</h2>
+          <p>Manage all parking areas and their slots</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddLotModal()" id="add-lot-btn">
+          ➕ Add New Lot
+        </button>
+      </div>
+      <div class="admin-lots-grid" id="admin-lots-container"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         BOOKINGS TAB
+         ══════════════════════════════════════ -->
+    <section class="admin-tab-section" id="admin-tab-bookings">
+      <div class="section-actions">
+        <div class="section-title-wrap">
+          <h2>All Bookings</h2>
+          <p>Complete booking history and management</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>User</th>
+              <th>Location</th>
+              <th>Slot</th>
+              <th>Duration</th>
+              <th>Amount</th>
+              <th>Booked At</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="all-bookings-tbody">
+            <tr><td colspan="9" class="text-center text-muted">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         USERS TAB
+         ══════════════════════════════════════ -->
+    <section class="admin-tab-section" id="admin-tab-users">
+      <div class="section-actions">
+        <div class="section-title-wrap">
+          <h2>Registered Users</h2>
+          <p>All driver accounts in the system</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Phone</th>
+              <th>Bookings</th>
+              <th>Total Spent</th>
+              <th>Joined</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="6" class="text-center text-muted">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     ADD LOT MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="add-lot-modal">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <div>
+        <h2 style="font-size:1.2rem;">➕ Add Parking Lot</h2>
+        <p style="font-size:0.82rem;margin-top:4px;">Create a new parking area in the system</p>
+      </div>
+      <button class="modal-close" onclick="closeAddLotModal()">✕</button>
+    </div>
+    <form id="add-lot-form" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group">
+        <label class="form-label" for="new-lot-name">Lot Name <span style="color:var(--accent-rose)">*</span></label>
+        <input class="form-input" type="text" id="new-lot-name" placeholder="e.g. Gulshan Parking Center" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="new-lot-address">Address <span style="color:var(--accent-rose)">*</span></label>
+        <input class="form-input" type="text" id="new-lot-address" placeholder="Full address of the parking lot" required />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label" for="new-lot-slots">Total Slots <span style="color:var(--accent-rose)">*</span></label>
+          <input class="form-input" type="number" id="new-lot-slots" placeholder="e.g. 30" min="1" max="500" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-lot-price">Price / Hour (৳) <span style="color:var(--accent-rose)">*</span></label>
+          <input class="form-input" type="number" id="new-lot-price" placeholder="e.g. 40" min="1" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="new-lot-features">Features (comma-separated)</label>
+        <input class="form-input" type="text" id="new-lot-features" placeholder="CCTV, 24/7 Open, EV Charging" />
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="closeAddLotModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;" id="add-lot-submit-btn">
+          ➕ Create Parking Lot
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     EDIT LOT MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="edit-lot-modal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <h2 style="font-size:1.2rem;">✏️ Edit Parking Lot</h2>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <input type="hidden" id="edit-lot-id" />
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group">
+        <label class="form-label" for="edit-lot-name">Lot Name</label>
+        <input class="form-input" type="text" id="edit-lot-name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-lot-address">Address</label>
+        <input class="form-input" type="text" id="edit-lot-address" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-lot-price">Price / Hour (৳)</label>
+        <input class="form-input" type="number" id="edit-lot-price" min="1" />
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEditLot()" style="flex:1;">💾 Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MANAGE SLOTS MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="slots-manage-modal">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-header">
+      <div>
+        <h2 style="font-size:1.2rem;">🔧 Manage Slots</h2>
+        <p style="font-size:0.82rem;margin-top:4px;" id="manage-lot-name"></p>
+        <p style="font-size:0.76rem;color:var(--text-muted);margin-top:4px;">Click a slot to toggle its status</p>
+      </div>
+      <button class="modal-close" onclick="closeManageModal()">✕</button>
+    </div>
+    <!-- Legend -->
+    <div class="slot-legend" style="margin-bottom:12px;">
+      <div class="legend-item"><div class="legend-dot available"></div> Available</div>
+      <div class="legend-item"><div class="legend-dot occupied"></div> Occupied</div>
+    </div>
+    <div id="admin-slot-grid"></div>
+    <div style="margin-top:16px;text-align:right;">
+      <button class="btn btn-primary btn-sm" onclick="closeManageModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="admin.js"></script>
+<script>
+  function handleAdminLogout() {
+    logout();
+    showToast('Signed out.', 'info');
+    setTimeout(() => window.location.href = 'index.html', 600);
+  }
+
+  function switchAdminTab(tabName) {
+    document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`admin-nav-${tabName}`)?.classList.add('active');
+    document.getElementById(`admin-tab-${tabName}`)?.classList.add('active');
+    if (tabName === 'bookings') renderAllBookings();
+    if (tabName === 'users') renderUsersTable();
+    if (tabName === 'lots') renderAdminLots();
+  }
+
+  // Recent bookings preview on overview tab
+  function renderRecentBookings() {
+    const tbody = document.getElementById('recent-bookings-tbody');
+    if (!tbody) return;
+    const bookings = getBookings().sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt)).slice(0, 5);
+    const users = getUsers();
+    if (bookings.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No bookings yet</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = bookings.map(b => {
+      const user = users.find(u => u.id === b.userId);
+      return `
+        <tr>
+          <td><span class="booking-id-badge">${b.id}</span></td>
+          <td>${user ? user.name : 'Unknown'}</td>
+          <td>${b.lotName}</td>
+          <td><strong>${b.slotNumber}</strong></td>
+          <td>৳${b.totalAmount}</td>
+          <td>${getStatusBadge(b.status)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderRecentBookings();
+    const el = document.getElementById('last-updated');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  });
+</script>
+</body>
+</html>

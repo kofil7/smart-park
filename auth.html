@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In – SmartPark</title>
+  <meta name="description" content="Sign in or create an account to start finding and reserving parking slots with SmartPark." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container">
+
+      <!-- Logo -->
+      <div class="auth-logo">
+        <a href="index.html">
+          <div class="auth-logo-icon">🅿️</div>
+        </a>
+        <div class="auth-logo-title">SmartPark</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Smart Parking Management System</p>
+      </div>
+
+      <!-- ── Login Card ── -->
+      <div class="auth-card" id="login-card">
+        <div>
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-sub">Sign in to find and manage your parking</p>
+        </div>
+
+        <!-- Demo credentials shortcut -->
+        <div class="demo-creds">
+          <p>🎯 <strong style="color:var(--text-primary)">Try a demo account:</strong></p>
+          <div class="demo-creds-btns">
+            <button class="demo-btn" id="demo-user-btn" data-role="user">👤 User Demo</button>
+            <button class="demo-btn" id="demo-admin-btn" data-role="admin">🛠️ Admin Demo</button>
+          </div>
+        </div>
+
+        <form class="auth-form" id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input
+              class="form-input"
+              type="email"
+              id="login-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="login-password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" id="login-btn" style="margin-top:6px;width:100%;padding:13px;">
+            🔐 Sign In
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="#" id="switch-to-register">Create one for free →</a>
+        </p>
+      </div>
+
+      <!-- ── Register Card ── -->
+      <div class="auth-card" id="register-card">
+        <div>
+          <h1 class="auth-title">Create account</h1>
+          <p class="auth-sub">Join SmartPark and park smarter today</p>
+        </div>
+
+        <form class="auth-form" id="register-form">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Full Name</label>
+            <input
+              class="form-input"
+              type="text"
+              id="reg-name"
+              placeholder="John Driver"
+              autocomplete="name"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Email Address</label>
+            <input
+              class="form-input"
+              type="email"
+              id="reg-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-phone">Phone Number</label>
+            <input
+              class="form-input"
+              type="tel"
+              id="reg-phone"
+              placeholder="01XXXXXXXXX"
+              autocomplete="tel"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="reg-password"
+              placeholder="At least 6 characters"
+              autocomplete="new-password"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-confirm">Confirm Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="reg-confirm"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-success" id="register-btn" style="margin-top:6px;width:100%;padding:13px;">
+            🚀 Create Account
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="#" id="switch-to-login">← Sign in</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeData();
+      // Redirect if already logged in
+      const user = getCurrentUser();
+      if (user) {
+        window.location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+      }
+      initAuth();
+    });
+  </script>
+</body>
+</html>
